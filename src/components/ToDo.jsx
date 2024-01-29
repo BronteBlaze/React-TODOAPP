@@ -7,9 +7,10 @@ const ToDo = () => {
   const [showTableRow, setTableRow] = useState(false);
   const [updateMode, setUpdateMode] = useState({
     mode: false,
-    updateTimeAndWork: {},
+    updateIndex: "",
   });
   const [saveMode, setSaveMode] = useState("insert");
+  const [showError, setShowError] = useState({ timeError: "", workError: "" });
 
   const timeChangeHandler = (event) => {
     setTime(event.target.value);
@@ -20,7 +21,14 @@ const ToDo = () => {
   };
 
   const saveWorkHandler = () => {
-    console.log();
+    if (time === "") {
+      setShowError({ timeError: "Time cannot be empty", workError: "" });
+      return;
+    } else if (work === "") {
+      setShowError({ timeError: "", workError: "Work is mendatory" });
+      return;
+    }
+
     if (!updateMode.mode && saveMode !== "update") {
       timeAndWork.push({ time, work });
       setTimeAndWork(timeAndWork);
@@ -28,19 +36,22 @@ const ToDo = () => {
       setTime("");
       setWork("");
     } else {
+      // Update the array::
       timeAndWork.forEach((eachTimeAndWork, index) => {
-        if (index === updateMode.updateTimeAndWork.index) {
+        if (index === updateMode.updateIndex) {
           eachTimeAndWork.time = time;
           eachTimeAndWork.work = work;
         }
       });
-      console.log(timeAndWork);
+
       setTimeAndWork(timeAndWork);
       setTime("");
       setWork("");
-      setUpdateMode({ mode: false, updateTimeAndWork: {} });
       setSaveMode("insert");
+      setUpdateMode(false);
     }
+
+    setShowError({ timeError: "", workError: "" });
   };
 
   const deleteDataHandler = (indexToBeDelete) => {
@@ -52,13 +63,10 @@ const ToDo = () => {
     setTimeAndWork(newTimeAndWork);
   };
 
-  const updateDataHandler = (timeToBeUpdate, workToBeUpdate, index) => {
-    setUpdateMode({
-      mode: true,
-      updateTimeAndWork: { timeToBeUpdate, workToBeUpdate, index },
-    });
-    setTime(timeToBeUpdate);
-    setWork(workToBeUpdate);
+  const updateDataHandler = (timeToBeDeleted, workToBeDeleted, index) => {
+    setUpdateMode({ mode: true, updateIndex: index });
+    setTime(timeToBeDeleted);
+    setWork(workToBeDeleted);
   };
 
   useEffect(() => {
@@ -76,11 +84,16 @@ const ToDo = () => {
             <input
               type="text"
               id="time"
-              className="border border-gray-400 bg-transparent h-10 w-96 p-3"
+              className={`border ${
+                showError.timeError ? "border-red-500" : "border-gray-400"
+              } bg-transparent h-10 w-96 p-3`}
               onChange={timeChangeHandler}
               value={time}
             />
           </div>
+          {showError.timeError !== "" && (
+            <div className="text-red-500 mt-2">{showError.timeError}</div>
+          )}
         </div>
         <div className="mt-5">
           <label htmlFor="work">Work</label>
@@ -88,11 +101,16 @@ const ToDo = () => {
             <input
               type="text"
               id="work"
-              className="border border-gray-400 bg-transparent h-10 w-96 p-3"
+              className={`border ${
+                showError.workError ? "border-red-500" : "border-gray-400"
+              } bg-transparent h-10 w-96 p-3`}
               onChange={workChangeHandler}
               value={work}
             />
           </div>
+          {showError.workError !== "" && (
+            <div className="text-red-500 mt-2">{showError.workError}</div>
+          )}
         </div>
         <div>
           <button
@@ -160,3 +178,17 @@ const ToDo = () => {
 export default ToDo;
 
 // useEffect
+
+// useContext => Context API
+
+// Parent Component => Child Component => Props Pass
+
+// Comp1 => Comp2 => Comp3 => Comp4 => Comp5 => Props Drilling
+
+// store State => context
+
+// steps::
+
+// .jsx or .js => createContext() contextProvider,
+
+// const states = useContext(toDoContext)
